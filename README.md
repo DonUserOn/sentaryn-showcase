@@ -22,7 +22,13 @@ SENTARYN is designed to answer a narrow but essential question:
 
 > **Was this change authorized?**
 
-## Access is not authority
+<p align="center">
+  <img src="assets/authority-decision.png" alt="SENTARYN authority decision showing a WOULD BLOCK result" width="900">
+</p>
+
+SENTARYN evaluates the requested change, authorized scope, actual change, evidence, and policy before producing an authority decision. All screenshots below are public product demonstrations.
+
+## Access is not Authority
 
 An agent may have technical access to a repository without having authority to change every file it can reach.
 
@@ -65,7 +71,11 @@ These outcomes communicate authority, not a general claim that the code is corre
 
 Shadow Mode evaluates real changes without blocking them. It reports what SENTARYN **would** decide—**WOULD ALLOW**, **WOULD REQUIRE APPROVAL**, **WOULD BLOCK**, or **NOT VERIFIED**—while existing delivery workflows remain in control.
 
-Teams can use this period to observe decisions, compare them with human review, and tune authority policies before introducing a gate. Learn more in [Shadow Mode](docs/shadow-mode.md).
+<p align="center">
+  <img src="assets/shadow-mode.png" alt="SENTARYN Shadow Mode showing NOT VERIFIED with missing evidence and required reviewer approval" width="900">
+</p>
+
+Teams can observe these outcomes, compare them with human review, and tune authority policies before enabling enforcement. Learn more in [Shadow Mode](docs/shadow-mode.md).
 
 ## Example scenario
 
@@ -99,23 +109,19 @@ The authentication changes may be correct and the tests may pass, but the deploy
 
 The Authority Map makes the boundary of a change visible. It relates the request to authorized and actual scope, then highlights matches, expansions, exclusions, and evidence gaps.
 
-```mermaid
-flowchart LR
-    R[Requested<br/>Fix authentication timeout] --> A[Authorized<br/>src/auth/**<br/>tests/auth/**]
-    A --> S1[Within scope<br/>src/auth/session.py]
-    A --> S2[Within scope<br/>tests/auth/test_session.py]
-    R --> X[Outside scope<br/>.github/workflows/deploy.yml]
-    S1 --> D[Authority exceeded]
-    S2 --> D
-    X --> D
-    D --> O[Would block]
-```
+<p align="center">
+  <img src="assets/authority-map.png" alt="SENTARYN Authority Map showing two files within authorized scope and a deployment workflow outside authority" width="900">
+</p>
 
 The map is an explanation surface, not a substitute for the evidence-backed decision record.
 
 ## Change Passport
 
-A Change Passport is a single evidence-backed record for one software change. It binds the request and authorized scope to immutable revision references, actual changed files, evaluated evidence, applicable policy, approval requirements, outcome, and provenance.
+A Change Passport binds request, authority, actual change, evidence, revision identity, policy, and decision into one inspectable record.
+
+<p align="center">
+  <img src="assets/change-passport.png" alt="SENTARYN Change Passport linking request, authorized scope, actual changes, evidence, revision identity, policy, and a WOULD REQUIRE APPROVAL decision" width="900">
+</p>
 
 The record is designed to make the basis of a decision inspectable and portable across review and delivery workflows. Read the [Change Passport overview](docs/change-passport.md).
 
