@@ -4,9 +4,13 @@
 
 **Control what AI changes in your software.**
 
+AI coding agents may need broad repository access, while individual tasks have narrower authority.
+
 SENTARYN’s authority model connects a task’s intent to the software change it produced, asking:
 
 **Was this change authorized?**
+
+[See the worked example](#worked-example-authentication-timeout) · [Request early access](https://sentaryn.com/early-access) · [Read the authority model](docs/authority-model.md)
 
 > **Public product showcase**
 > This repository demonstrates SENTARYN’s authority model, product concepts, and illustrative evaluation flows. It does not contain proprietary implementation details or customer data.
@@ -16,6 +20,18 @@ SENTARYN’s authority model connects a task’s intent to the software change i
 AI coding agents may have broad repository access. That access does not establish whether a specific task authorized changes to a particular file, sensitive workflow, infrastructure, configuration, or deployment process. It also does not establish whether approval-sensitive actions received the required approval.
 
 Tests can pass while task authority was exceeded. Engineering teams need to inspect both the quality of a change and the authority behind it.
+
+## When SENTARYN becomes useful
+
+Task authority matters when AI-generated changes can reach:
+
+- CI/CD workflows and deployment configuration.
+- Infrastructure-as-code and production configuration.
+- Authentication / authorization code and permission boundaries.
+- Dependency or build configuration.
+- Approval-sensitive paths and changes requiring particular evidence.
+
+Broad repository access is often operationally useful. It should not automatically become unlimited task authority. These are situations where the authority question matters, rather than integration claims.
 
 ## Access is not Authority
 
@@ -46,6 +62,17 @@ SENTARYN’s authority model compares five connected elements:
 A request establishes intent. Authorized scope establishes the boundary. The actual change and its evidence establish what can be evaluated. Policy and required approvals determine the authority decision.
 
 See the [authority model](docs/authority-model.md) for the underlying distinctions.
+
+## Who should evaluate SENTARYN?
+
+Teams that:
+
+- Use AI coding agents meaningfully across non-trivial repositories.
+- Care about changes to sensitive or approval-controlled paths.
+- Want a clearer separation between repository access and task authorization, with evidence when a change exceeds the original task boundary.
+- Are evaluating greater agent autonomy while keeping task authority explicit.
+
+If these describe your workflow, start with the example below and compare its authority boundary with one of your own changes.
 
 ## Worked example: authentication timeout
 
@@ -137,9 +164,45 @@ Comparing these outcomes with human review helps teams identify false positives,
 
 Read the [Shadow Mode overview](docs/shadow-mode.md) for the observation and calibration sequence.
 
+## Other authority scenarios
+
+These four mini-scenarios are illustrative. They show different authority conditions, not production customer incidents.
+
+### CI/CD expansion
+
+**Request:** Update application logging. **Authorized:** `src/logging/**` and `tests/logging/**`.
+
+**Unexpected actual change:** `.github/workflows/release.yml`.
+
+**Authority concern:** The task expanded into release automation beyond its authorized scope.
+
+### Infrastructure expansion
+
+**Request:** Fix API retry behavior. **Authorized:** `src/api/**` and `tests/api/**`.
+
+**Unexpected actual change:** `terraform/production/network.tf`.
+
+**Authority concern:** An application task expanded into production infrastructure.
+
+### Approval required
+
+**Request:** Update authentication validation. The actual change remains within authorized paths.
+
+**Policy:** Changes to authentication policy require security-owner approval. **Decision concept:** **WOULD REQUIRE APPROVAL** while that approval is outstanding.
+
+**Authority concern:** Correct scope does not eliminate required approvals.
+
+### Evidence missing
+
+**Request:** Update payment retry handling. Scope appears authorized.
+
+**Required evidence:** A specific regression test and reviewer evidence. **Evidence:** Missing or incomplete. **Decision concept:** **NOT VERIFIED**.
+
+**Authority concern:** Missing evidence should not silently become approval.
+
 ## Authority is a distinct control
 
-SENTARYN focuses on task-specific authority alongside existing engineering controls.
+Tests, code review, identity, and repository permissions are valuable controls. SENTARYN’s authority model addresses a complementary question: whether this exact task was authorized to produce this exact change.
 
 | Control | What it answers | What it does not prove |
 | --- | --- | --- |
@@ -170,6 +233,32 @@ The authority model is independent from the agent that generated the change. Its
 
 The same control question applies to changes generated with Codex, Claude Code, Cursor, GitHub Copilot, or internal coding agents. These are examples of generation environments, rather than claims of formal integrations.
 
+## Frequently asked questions
+
+### Isn’t this just repository permissions?
+
+No. Permissions determine what an identity or tool can technically access. Task authority defines what a particular task was allowed to change.
+
+### What if all tests pass?
+
+Passing tests support correctness evidence. They do not establish that every changed file or action was authorized.
+
+### Does SENTARYN replace code review?
+
+No. Review and authority answer different questions and can reinforce each other.
+
+### Does SENTARYN depend on one coding agent?
+
+The authority model is agent-independent. Codex, Claude Code, Cursor, GitHub Copilot, and internal agents are examples of generation environments, not claims of formal integrations.
+
+### What happens when evidence is incomplete?
+
+**NOT VERIFIED** keeps uncertainty explicit instead of treating missing evidence as approval.
+
+### Does authorization prove the code is secure or correct?
+
+No. Authority is one control dimension; correctness and security require their own evidence and controls.
+
 ## Repository guide
 
 | Path | Purpose |
@@ -181,8 +270,12 @@ The same control question applies to changes generated with Codex, Claude Code, 
 | [examples/authority-scenario.md](examples/authority-scenario.md) | Worked authentication-timeout evaluation |
 | [assets/README.md](assets/README.md) | Inventory and guidance for public product imagery |
 
-## Explore SENTARYN
+## Evaluate the authority problem with us
+
+If your team is giving coding agents meaningful repository access, we want to learn where task authority becomes difficult to see or enforce in real workflows.
+
+**Start with the [worked example](#worked-example-authentication-timeout), then compare it with one of your own agent-generated changes.**
+
+[Request early access](https://sentaryn.com/early-access) · [Visit SENTARYN](https://sentaryn.com) · [View the authority model](docs/authority-model.md)
 
 **Let AI build. Keep control.**
-
-[Visit SENTARYN](https://sentaryn.com) · [Request early access](https://sentaryn.com/early-access)
