@@ -1,46 +1,51 @@
 # Change Passport
 
-A Change Passport is a single evidence-backed record for one software change. It binds intent, authority, observed change, evidence, policy, and outcome so that the basis of a decision can be inspected as one coherent record.
+A Change Passport is an evidence-backed representation of one software change. It connects request, authorized scope, actual change, revision identity, evidence, policy, approvals, decision, and provenance into one inspectable record.
 
-It is not a claim that the software is flawless. It records what was evaluated, against which boundary, using which evidence, and with what result.
+It explains what was evaluated, against which boundary, using which evidence, and with what result. It does not establish that the software is flawless.
 
-## Record contents
+## Conceptual record contents
 
-| Field | Purpose |
+| Element | Purpose |
 | --- | --- |
-| **Change ID** | Stable identifier for the evaluated change |
-| **Repository** | Repository in which the change was observed |
-| **Base revision** | Immutable revision from which evaluation begins |
-| **Head revision** | Immutable revision containing the proposed result |
-| **Request** | The outcome the change was intended to achieve |
-| **Authorized scope** | Approved boundary for the change |
-| **Actual changed files** | Files observed between base and head revisions |
-| **Evidence** | Verifiable signals available to the evaluation |
-| **Policy** | Policy context applied to authority and evidence |
-| **Approval requirements** | Human approvals required by the evaluated conditions |
-| **Outcome** | ALLOW, REQUIRE APPROVAL, BLOCK, or NOT VERIFIED |
-| **Provenance / evidence identity** | Identity and origin needed to relate evidence to this specific change |
+| **Change identity** | Identifies the evaluated software change |
+| **Repository** | Establishes where the change was observed |
+| **Base and head revisions** | Anchor the exact change under evaluation |
+| **Request** | Captures the outcome the task was asked to achieve |
+| **Authorized scope** | Defines the approved boundary and actions |
+| **Actual change** | Describes the observed difference, including changed files |
+| **Evidence** | Connects verifiable signals to the evaluation |
+| **Policy** | Identifies the conditions applied to authority and evidence |
+| **Approvals** | Connects required approvals and available approval evidence to their scope and revision context |
+| **Decision** | Records ALLOW, REQUIRE APPROVAL, BLOCK, or NOT VERIFIED, with Shadow Mode equivalents where applicable |
+| **Provenance** | Relates the origin and identity of evidence to this change |
 
-## Why bind these fields together?
+These are public product concepts, not a private serialization or policy schema.
 
-A decision is meaningful only when its inputs refer to the same change. Revision references anchor the observed diff. The request and authorized scope establish the intended boundary. Evidence and its provenance show which signals were evaluated. Policy and approval requirements explain how the outcome was reached.
+## Why connect these elements?
 
-Keeping these elements together reduces ambiguity such as:
+A decision is meaningful only when its inputs refer to the same change. Revision identity anchors the observed diff. The request and authorized scope establish the intended boundary. Evidence and provenance establish which signals were evaluated. Policy and approvals explain how the decision was reached.
+
+This connection makes ambiguities inspectable:
 
 - evidence from a different revision being treated as current;
-- a changed-file list being detached from its repository;
-- an approval being applied without its required context;
-- an outcome being shown without the authority boundary behind it.
+- a changed-file list detached from its repository;
+- an approval applied outside its scope or revision context;
+- an outcome shown without the authority boundary behind it.
 
 ## Evidence-backed, not evidence-assumed
 
-The passport distinguishes evidence that is present and attributable from evidence that is merely expected. When required evidence cannot be bound to the evaluated change, the appropriate outcome may be **NOT VERIFIED** rather than an inferred approval.
+The passport distinguishes attributable evidence from evidence that is merely expected. If required evidence cannot be connected to the evaluated change, the model keeps that gap explicit; **NOT VERIFIED** represents an insufficient basis for a reliable determination.
 
-## Decision record
+Passing tests do not prove task authority. Likewise, an authorized path does not establish that every required approval has been obtained.
 
-The Change Passport is the durable explanation surface for an authority decision. A GitHub Check can present the immediate result; the passport preserves the connected record that supports it.
+## Decision context
 
-The public concept intentionally omits private schemas, proprietary policy implementation, internal storage design, signing details, and production topology.
+The README’s Change Passport illustration shows a scoped authentication change with satisfied technical evidence and a policy requiring human approval. Its result is **WOULD REQUIRE APPROVAL**.
+
+That differs from the [scope-expansion scenario](../examples/authority-scenario.md), which includes an unauthorized deployment workflow change and yields **WOULD BLOCK**. A passport explains the evidence and conditions behind either outcome.
+
+The concept describes connected decision context. It does not specify production storage, retention, signing, or compliance guarantees.
 
 ## Related documents
 

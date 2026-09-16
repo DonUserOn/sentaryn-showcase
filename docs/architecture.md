@@ -1,62 +1,66 @@
 # Public Architecture Overview
 
-SENTARYN is an independent authority layer for AI-generated software changes. The public architecture describes the evaluation flow and trust boundaries without exposing proprietary implementation details.
+SENTARYN’s authority model evaluates whether an AI-generated software change satisfies the authority granted for its task. This public architecture describes the logical evaluation flow and conceptual trust boundaries.
 
 ```mermaid
 flowchart TD
     A[Task / Request] --> B[Authority Definition]
-    B --> C[Pull Request / Change]
+    B --> C[Proposed Change / Revision]
     C --> D[Change Acquisition]
     D --> E[Authority Evaluation]
     E --> F[Evidence Evaluation]
-    F --> G[Policy Evaluation]
-    G --> H[Decision]
-    H --> I[GitHub Check / Change Passport]
+    F --> G[Policy and Approval Evaluation]
+    G --> H[Authority Decision]
+    H --> I[Review Context / Change Passport]
 ```
 
 ## Evaluation flow
 
 ### 1. Task / Request
 
-The workflow begins with the intended outcome: the task an AI agent or engineering process is asked to complete.
+The flow begins with the intended outcome: the task an AI agent or engineering process is asked to complete. A request establishes purpose; it does not automatically authorize every repository change.
 
 ### 2. Authority Definition
 
-The request is paired with an explicit authority boundary. This can identify the approved scope and the evidence or approvals required for the change.
+The request is paired with an explicit authority boundary: approved scope and actions, required evidence, and approval conditions.
 
-### 3. Pull Request / Change
+### 3. Proposed Change / Revision
 
-An agent-independent software change is proposed through a reviewable repository workflow.
+A software change is proposed through a reviewable repository workflow. The authority model is independent from the agent that generated it.
 
 ### 4. Change Acquisition
 
-The evaluation obtains the relevant repository and revision context needed to identify the actual change. The public model treats acquisition as an evidence boundary: the decision must relate to the specific change being reviewed.
+The evaluation identifies the actual change between defined base and head revisions. This is an evidence boundary: changed-file data and other signals must refer to the specific repository and revision being reviewed.
 
 ### 5. Authority Evaluation
 
-Observed changes are compared with the defined authority. Scope that extends beyond the approved boundary is made explicit.
+Actual scope is compared with authorized scope. Changes beyond the approved boundary are explicit scope expansion, even when the changed code passes tests.
 
 ### 6. Evidence Evaluation
 
-Available signals are checked for relevance and connection to the evaluated change. Missing evidence is not treated as passing evidence.
+Available signals are evaluated for relevance and connection to the exact change. Missing evidence is not passing evidence, and evidence from another revision does not establish the state of this one.
 
-### 7. Policy Evaluation
+### 7. Policy and Approval Evaluation
 
-Applicable policy relates authority findings, evidence, and approval requirements to a decision. This layer remains independent from the agent that authored the change.
+Applicable policy connects authority findings, required evidence, and approval conditions to a decision. Being within authorized paths does not by itself satisfy every approval requirement.
 
-### 8. Decision
+### 8. Authority Decision
 
-The evaluation produces **ALLOW**, **REQUIRE APPROVAL**, **BLOCK**, or **NOT VERIFIED**. In Shadow Mode, enforceable outcomes are expressed as what the system would decide.
+The model produces **ALLOW**, **REQUIRE APPROVAL**, **BLOCK**, or **NOT VERIFIED**. Shadow Mode expresses the first three as **WOULD ALLOW**, **WOULD REQUIRE APPROVAL**, and **WOULD BLOCK**, without gating the change.
 
-### 9. GitHub Check / Change Passport
+### 9. Review Context / Change Passport
 
-The decision can be surfaced where engineers review changes and recorded in a Change Passport that binds the decision to its inputs and evidence.
+The decision is explained through its request, authorized boundary, observed revision, evidence, policy, and approvals. A Change Passport connects that context into one inspectable record for the software change.
 
-## Deliberate public boundary
+## Conceptual trust boundaries
 
-Production topology, private schemas, secrets, customer data, internal policy implementation, and proprietary Governor internals are intentionally omitted from this public repository. Credentials and private deployment details are omitted as well.
+- **Intent and authorization:** a task description is not an unlimited grant of authority.
+- **Authorization and observation:** actual scope comes from the change, rather than the agent’s account of what it changed.
+- **Evidence and decision:** passing tests support behavior claims; they do not grant permission for additional scope.
+- **Revision and provenance:** evidence and approvals need context tying them to the evaluated change.
+- **Observation and enforcement:** a Shadow Mode outcome describes a decision without becoming a merge gate.
 
-This overview communicates product boundaries and the logical evaluation sequence. It is not an operational diagram and should not be read as documentation of private infrastructure or implementation.
+This is a logical product model, not a deployment diagram. Private implementation, policy schemas, storage design, credentials, customer data, deployment topology, and proprietary Governor internals are outside this overview.
 
 ## Related documents
 

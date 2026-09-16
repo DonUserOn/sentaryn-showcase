@@ -1,21 +1,16 @@
 # Public Product Assets
 
-This directory contains the four published screenshots used in the SENTARYN showcase. They are public product demonstrations.
+This directory contains the four screenshots used in the SENTARYN showcase. They are illustrative public product demonstrations.
 
-## Published screenshots
+## Screenshot inventory
 
-- [authority-decision.png](authority-decision.png) — authority evaluation showing **WOULD BLOCK**
+- [authority-decision.png](authority-decision.png) — **WOULD BLOCK** for scope expansion and missing authorization evidence
 - [authority-map.png](authority-map.png) — authorized and actual scope, highlighting a deployment workflow outside authority
-- [change-passport.png](change-passport.png) — inspectable change record showing **WOULD REQUIRE APPROVAL**
+- [change-passport.png](change-passport.png) — connected change evidence and policy showing **WOULD REQUIRE APPROVAL**
 - [shadow-mode.png](shadow-mode.png) — non-blocking evaluation showing **NOT VERIFIED**
 
-## Optional future assets
+Each screenshot is displayed once in the repository README. The illustrations show different evaluation conditions, rather than successive results for one identical change.
 
-These assets are not currently present:
-
-- `hero.png` — optional repository or website hero artwork
-- `logo.png` — optional approved SENTARYN logo asset
-
-Only assets cleared for public distribution should be stored here. Screenshots must not expose credentials, secrets, customer data, private policy schemas, internal deployment details, proprietary Governor internals, or other private implementation information.
+Only assets cleared for public distribution belong here. Public imagery must exclude credentials, secrets, customer data, private policy schemas, deployment details, and proprietary implementation internals.
 
 Return to the [repository overview](../README.md).

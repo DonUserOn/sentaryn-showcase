@@ -1,53 +1,59 @@
 # The SENTARYN Authority Model
 
-SENTARYN evaluates AI-generated software changes against explicitly delegated authority. Its model separates what was requested, what was authorized, what actually changed, what can be evidenced, and what policy decides.
+SENTARYN’s authority model evaluates AI-generated software changes against explicitly delegated authority. It separates what was requested, what was authorized, what actually changed, what the evidence establishes, and what policy decides.
 
-> **Requested → Authorized → Actual → Evidence → Decision**
+**Requested → Authorized → Actual → Evidence → Decision**
 
 ## Requested
 
-**Requested** captures the intended outcome of the change in context: the task, issue, instruction, or objective an agent was asked to address.
+**Requested** captures the intended outcome in context: the task, issue, instruction, or objective an agent was asked to address.
 
-A request explains purpose, but it is not necessarily a complete authorization. “Fix authentication timeout,” for example, does not imply permission to change deployment workflows, dependency policy, billing code, or every other reachable part of a repository.
+A request explains purpose, but is not necessarily a complete authorization. “Fix authentication timeout” does not imply permission to change deployment workflows, dependency policy, billing code, or every reachable part of a repository.
 
 ## Authorized
 
-**Authorized** defines the approved boundary for the change. Depending on policy, that boundary may include allowed paths, prohibited paths, permitted change types, required evidence, approval conditions, or other public control concepts.
+**Authorized** defines the approved boundary for the task. That boundary can include allowed or excluded paths, permitted actions, required evidence, and approval conditions.
 
-Authorization should be specific to the change and evaluated independently of the agent's technical capabilities.
+Authorization is specific to the task and change. It is evaluated independently of the agent’s technical capabilities and repository permissions.
 
 ## Actual
 
-**Actual** is the observed change between defined base and head revisions. It represents what happened—not what the request or agent description says happened.
+**Actual** is the observed change between defined base and head revisions. It represents what changed, rather than what the request or agent description says changed.
 
-At a minimum, actual scope can include the files changed. An authority evaluation relates that observed scope back to the authorized boundary.
+The worked example uses changed-file scope. Comparing those files with the approved paths makes unauthorized scope expansion explicit.
 
 ## Evidence
 
-**Evidence** consists of verifiable signals used to support evaluation. Examples may include revision identity, changed-file data, test results, review state, or provenance information.
+**Evidence** consists of verifiable signals supporting evaluation, such as revision identity, changed-file data, test results, review state, and provenance.
 
-Evidence must remain distinct from the conclusion drawn from it. Passing tests can support a correctness claim, but cannot by themselves establish that every changed path was authorized.
+Evidence and its interpretation remain distinct. Passing tests support claims about tested behavior; they do not establish that every changed path was authorized. Relevant evidence must refer to the evaluated repository and revision.
 
 ## Decision
 
-**Decision** is the explicit outcome produced after authority, evidence, and policy evaluation:
+**Decision** is the explicit outcome of authority, evidence, policy, and approval evaluation:
 
-- **ALLOW** — authorized conditions are satisfied.
-- **REQUIRE APPROVAL** — a designated approval is required before proceeding.
-- **BLOCK** — an authority or policy boundary was violated.
-- **NOT VERIFIED** — the evidence is insufficient for a reliable determination.
+| Outcome | Meaning |
+| --- | --- |
+| **ALLOW** | Authorized scope and required evidence, policy, and approval conditions are satisfied |
+| **REQUIRE APPROVAL** | A designated human approval is required before proceeding |
+| **BLOCK** | An authority or policy boundary was violated |
+| **NOT VERIFIED** | Evidence is insufficient for a reliable determination |
 
-In Shadow Mode, the first three outcomes are reported as **WOULD ALLOW**, **WOULD REQUIRE APPROVAL**, and **WOULD BLOCK** without enforcing them.
+In Shadow Mode, the first three outcomes are **WOULD ALLOW**, **WOULD REQUIRE APPROVAL**, and **WOULD BLOCK** without gating the change. **NOT VERIFIED** remains distinct from approval.
 
-## Access != Authority
+A known scope violation and insufficient evidence are different findings. The authentication-timeout example establishes a scope violation from the actual changed paths; passing tests do not cancel that finding.
 
-Access determines what an identity or tool is technically capable of doing. Authority determines what that actor is permitted to do for a particular change.
+## Access is not Authority
 
-Broad repository access may be operationally necessary for an agent to work, but it should not silently expand the scope of every task. An actor can have permission to write a file at the platform level while lacking authority to modify it in the current change.
+Access determines what an identity or tool is technically capable of doing. Authority determines what the specific task permits it to do.
 
-## Correctness != Authority
+Broad repository access can help an agent complete its work. It does not silently expand task scope. An actor can have platform permission to write a file while lacking task authority to modify it.
 
-Correctness asks whether a change behaves as intended. Authority asks whether the observed change remained within its approved boundary.
+## Correctness is not Authority
+
+Tests ask: **Did the implementation behave as expected?**
+
+Authority asks: **Was this task permitted to make this change?**
 
 A change can be:
 
@@ -56,13 +62,13 @@ A change can be:
 - incorrect but authorized in scope; or
 - both incorrect and unauthorized.
 
-Tests, static analysis, and review contribute valuable correctness evidence. They do not replace authority evaluation.
+Tests, static analysis, and code review remain valuable controls. Authority adds a separate evaluation of permission, scope, evidence, and required approvals.
 
-## Capability != Authorization
+## Capability is not Authorization
 
-Capability describes what an AI agent can accomplish. Authorization defines which of those possible actions it may take now.
+Capability describes what an agent can accomplish. Authorization defines which actions it may take for this task.
 
-As agent capabilities grow, this distinction becomes more important. SENTARYN is designed as an independent authority layer so that confidence in a model, tool, or agent does not become an implicit grant of unrestricted authority.
+The authority model stays independent from the generation tool so that confidence in an agent does not become an implicit grant of unrestricted authority.
 
 ## Related documents
 

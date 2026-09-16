@@ -4,35 +4,24 @@
 
 **Control what AI changes in your software.**
 
-SENTARYN is an independent authority layer that evaluates whether an AI-generated software change stayed within the authority it was given—not only whether the change works.
+SENTARYN’s authority model connects a task’s intent to the software change it produced, asking:
 
-> **Requested → Authorized → Actual → Evidence → Decision**
+**Was this change authorized?**
 
-[Website](https://sentaryn.com) · [Install the GitHub App](https://github.com/apps/sentaryn/installations/new) · [Architecture](docs/architecture.md) · [Authority model](docs/authority-model.md)
+> **Public product showcase**
+> This repository demonstrates SENTARYN’s authority model, product concepts, and illustrative evaluation flows. It does not contain proprietary implementation details or customer data.
 
----
+## The problem
 
-## What is SENTARYN?
+AI coding agents may have broad repository access. That access does not establish whether a specific task authorized changes to a particular file, sensitive workflow, infrastructure, configuration, or deployment process. It also does not establish whether approval-sensitive actions received the required approval.
 
-AI coding agents can propose increasingly capable changes across source code, tests, configuration, infrastructure, and delivery workflows. SENTARYN provides a separate authority boundary for those changes.
-
-For each change, SENTARYN compares the original request, the scope that was authorized, the files and behavior actually changed, the available evidence, and the applicable policy. It then produces an explicit decision that can be surfaced as a GitHub Check and recorded in a Change Passport.
-
-SENTARYN is designed to answer a narrow but essential question:
-
-> **Was this change authorized?**
-
-<p align="center">
-  <img src="assets/authority-decision.png" alt="SENTARYN authority decision showing a WOULD BLOCK result" width="900">
-</p>
-
-SENTARYN evaluates the requested change, authorized scope, actual change, evidence, and policy before producing an authority decision. All screenshots below are public product demonstrations.
+Tests can pass while task authority was exceeded. Engineering teams need to inspect both the quality of a change and the authority behind it.
 
 ## Access is not Authority
 
-An agent may have technical access to a repository without having authority to change every file it can reach.
+**Access is not Authority.**
 
-Repository permissions describe capability: what an identity or tool is able to do. Authority describes the approved boundary for a specific change: what it is allowed to do in this context.
+Repository access describes what an identity or tool can do. Authority defines what a specific task permits it to change, under which evidence and approval conditions.
 
 ```text
 Can modify repository ≠ Authorized to modify every path
@@ -40,55 +29,36 @@ Can open a pull request ≠ Authorized scope was respected
 Tests passed ≠ Change was authorized
 ```
 
-This separation allows teams to use capable AI systems without treating broad technical access as unlimited approval.
-
 ## Core authority model
 
-SENTARYN evaluates five connected elements:
+**Requested → Authorized → Actual → Evidence → Decision**
+
+SENTARYN’s authority model compares five connected elements:
 
 | Element | Question |
 | --- | --- |
 | **Requested** | What outcome was asked for? |
-| **Authorized** | What scope and actions were approved? |
-| **Actual** | What did the change really modify? |
+| **Authorized** | What scope and actions were approved for this task? |
+| **Actual** | What did this exact revision change? |
 | **Evidence** | What verifiable signals support the evaluation? |
-| **Decision** | Does policy permit the observed change? |
+| **Decision** | Does the change satisfy authority, evidence, policy, and approval conditions? |
 
-The model is intentionally independent from the agent that generated the code. See the [authority model](docs/authority-model.md) for the underlying distinctions.
+A request establishes intent. Authorized scope establishes the boundary. The actual change and its evidence establish what can be evaluated. Policy and required approvals determine the authority decision.
 
-## Decision outcomes
+See the [authority model](docs/authority-model.md) for the underlying distinctions.
 
-SENTARYN expresses authority decisions in a small, explicit vocabulary:
-
-- **ALLOW** — the change is within authorized scope and satisfies the required evidence and policy conditions.
-- **REQUIRE APPROVAL** — the change needs a designated human approval before it can proceed.
-- **BLOCK** — the change violates an authority or policy boundary.
-- **NOT VERIFIED** — the available evidence is insufficient to establish a reliable authority decision.
-
-These outcomes communicate authority, not a general claim that the code is correct, secure, or defect-free.
-
-## Shadow Mode
-
-Shadow Mode evaluates real changes without blocking them. It reports what SENTARYN **would** decide—**WOULD ALLOW**, **WOULD REQUIRE APPROVAL**, **WOULD BLOCK**, or **NOT VERIFIED**—while existing delivery workflows remain in control.
-
-<p align="center">
-  <img src="assets/shadow-mode.png" alt="SENTARYN Shadow Mode showing NOT VERIFIED with missing evidence and required reviewer approval" width="900">
-</p>
-
-Teams can observe these outcomes, compare them with human review, and tune authority policies before enabling enforcement. Learn more in [Shadow Mode](docs/shadow-mode.md).
-
-## Example scenario
+## Worked example: authentication timeout
 
 **Request:** Fix authentication timeout
 
-**Authorized:**
+**Authorized scope:**
 
 ```text
 src/auth/**
 tests/auth/**
 ```
 
-**Actual:**
+**Actual changed files:**
 
 ```text
 src/auth/session.py
@@ -98,81 +68,121 @@ tests/auth/test_session.py
 
 | Signal | Result |
 | --- | --- |
-| Tests | **PASSED** |
+| Evidence | Tests **PASSED** |
 | Authority | **EXCEEDED** |
 | Decision | **WOULD BLOCK** |
 | Reason | Unauthorized scope expansion |
 
-The authentication changes may be correct and the tests may pass, but the deployment workflow falls outside the authorized paths. Correctness evidence does not grant authority. See the [full scenario](examples/authority-scenario.md).
+The two authentication files are within scope. The deployment workflow is outside the authority granted for this task. Passing tests do not authorize that additional change.
+
+**The code may work. The change can still exceed the authority granted by the task.**
+
+Follow the [full scenario](examples/authority-scenario.md) for the evaluation trace and appropriate next steps.
+
+## Authority decision
+
+This illustrative public product demonstration shows **WOULD BLOCK** for scope expansion, with missing authorization evidence made explicit alongside passing tests.
+
+<p align="center">
+  <img src="assets/authority-decision.png" alt="Illustrative SENTARYN authority decision: WOULD BLOCK for an unauthorized deployment workflow change and missing authorization evidence" width="900">
+</p>
+
+The model uses a small, explicit decision vocabulary:
+
+| Outcome | Meaning |
+| --- | --- |
+| **ALLOW** | Authorized scope, required evidence, policy, and approval conditions are satisfied |
+| **REQUIRE APPROVAL** | A designated human approval is required before proceeding |
+| **BLOCK** | An authority or policy boundary was violated |
+| **NOT VERIFIED** | Available evidence is insufficient for a reliable determination |
+
+Shadow Mode expresses the first three as observation outcomes prefixed with **WOULD**. An authority decision does not establish that the implementation is correct or secure.
 
 ## Authority Map
 
-The Authority Map makes the boundary of a change visible. It relates the request to authorized and actual scope, then highlights matches, expansions, exclusions, and evidence gaps.
+The Authority Map makes the difference between **authorized scope**, **actual scope**, and **scope expansion** visually inspectable. In the authentication example, it connects the two authorized files to their approved paths and highlights the deployment workflow outside that boundary.
 
 <p align="center">
   <img src="assets/authority-map.png" alt="SENTARYN Authority Map showing two files within authorized scope and a deployment workflow outside authority" width="900">
 </p>
 
-The map is an explanation surface, not a substitute for the evidence-backed decision record.
+The map explains where actual scope diverges from authority; the connected evidence explains the decision.
 
 ## Change Passport
 
-A Change Passport binds request, authority, actual change, evidence, revision identity, policy, and decision into one inspectable record.
+A Change Passport is an evidence-backed representation of one software change. It connects **request, authorized scope, actual change, revision identity, evidence, policy, approvals, decision, and provenance** into one inspectable record.
 
 <p align="center">
-  <img src="assets/change-passport.png" alt="SENTARYN Change Passport linking request, authorized scope, actual changes, evidence, revision identity, policy, and a WOULD REQUIRE APPROVAL decision" width="900">
+  <img src="assets/change-passport.png" alt="Illustrative Change Passport linking a scoped authentication change to revision identity, evidence, policy, provenance, and a WOULD REQUIRE APPROVAL decision" width="900">
 </p>
 
-The record is designed to make the basis of a decision inspectable and portable across review and delivery workflows. Read the [Change Passport overview](docs/change-passport.md).
+This example shows a different authority condition: the change stays within scope and technical evidence is satisfied, but policy still requires human approval. Scope compliance and required approvals are separate parts of the decision.
+
+See the [Change Passport overview](docs/change-passport.md) for how the record connects these elements.
+
+## Shadow Mode
+
+Shadow Mode is the observation-first concept for evaluating authority policies without making the results blocking:
+
+- **WOULD ALLOW**
+- **WOULD REQUIRE APPROVAL**
+- **WOULD BLOCK**
+- **NOT VERIFIED**
+
+<p align="center">
+  <img src="assets/shadow-mode.png" alt="Illustrative Shadow Mode result showing NOT VERIFIED because required evidence is incomplete" width="900">
+</p>
+
+Comparing these outcomes with human review helps teams identify false positives, missing evidence, and unclear approval boundaries before relying on enforcement. **NOT VERIFIED** keeps uncertainty visible instead of treating missing evidence as approval.
+
+Read the [Shadow Mode overview](docs/shadow-mode.md) for the observation and calibration sequence.
 
 ## Authority is a distinct control
 
+SENTARYN focuses on task-specific authority alongside existing engineering controls.
+
 | Control | What it answers | What it does not prove |
 | --- | --- | --- |
-| **Correctness** | Does the change behave as expected? | That the change was authorized |
-| **Code review** | Did a reviewer assess the proposed change? | That actual scope matches delegated authority |
-| **Identity** | Who or what acted? | What that actor was allowed to change |
-| **Repository access** | Can the actor perform an operation? | Whether this specific operation is authorized |
-| **Authority** | Did the actual change remain within its approved boundary? | That the implementation is otherwise correct |
+| **Correctness / tests** | Did the implementation behave as expected? | That the task authorized every change |
+| **Code review** | Did a reviewer assess the proposed change? | That task authority and required evidence were explicitly checked |
+| **Identity** | Who or what acted? | What that actor was authorized to change for this task |
+| **Repository access** | Can the actor perform an operation? | That this task permits that operation |
+| **Authority** | Was this task permitted to make this change? | That authorized code is automatically correct |
 
-These controls reinforce one another, but they are not interchangeable.
+These controls reinforce one another. Tests evaluate behavior; authority evaluates permission for the specific task and change.
+
+## What SENTARYN is not
+
+- Not another coding agent.
+- Not a replacement for tests.
+- Not a replacement for code review.
+- Not a general vulnerability scanner.
+- Not simply repository permissions.
+- Not a claim that authorized code is automatically correct.
+
+SENTARYN focuses on a different control question:
+
+**Was this exact software change authorized for this exact task, with the required evidence?**
 
 ## Agent-independent design
 
-SENTARYN evaluates the resulting software change rather than depending on a single generation environment. The authority model can sit across workflows involving:
+The authority model is independent from the agent that generated the change. Its inputs concern the task, authorized boundary, resulting revision, and evidence.
 
-- Claude Code
-- Codex
-- Cursor
-- GitHub Copilot
-- Internal agents
-
-Agent independence keeps the control boundary separate from the tool being governed.
+The same control question applies to changes generated with Codex, Claude Code, Cursor, GitHub Copilot, or internal coding agents. These are examples of generation environments, rather than claims of formal integrations.
 
 ## Repository guide
 
 | Path | Purpose |
 | --- | --- |
-| [docs/architecture.md](docs/architecture.md) | Safe public architecture and evaluation flow |
-| [docs/authority-model.md](docs/authority-model.md) | Core authority concepts and distinctions |
-| [docs/change-passport.md](docs/change-passport.md) | Evidence-backed change record |
-| [docs/shadow-mode.md](docs/shadow-mode.md) | Non-blocking evaluation before enforcement |
-| [examples/authority-scenario.md](examples/authority-scenario.md) | Worked authentication-timeout scenario |
-| [assets/README.md](assets/README.md) | Guidance for public product imagery |
+| [docs/architecture.md](docs/architecture.md) | Public evaluation flow and conceptual trust boundaries |
+| [docs/authority-model.md](docs/authority-model.md) | Requested, authorized, actual, evidence, and decision |
+| [docs/change-passport.md](docs/change-passport.md) | Connected evidence and decision context for one change |
+| [docs/shadow-mode.md](docs/shadow-mode.md) | Observation, review comparison, and policy calibration |
+| [examples/authority-scenario.md](examples/authority-scenario.md) | Worked authentication-timeout evaluation |
+| [assets/README.md](assets/README.md) | Inventory and guidance for public product imagery |
 
-## Public showcase scope
-
-This repository is a public product and architecture showcase. It intentionally does not contain proprietary Governor or SENTARYN source code, production topology, private policy schemas, secrets, credentials, customer data, internal deployment details, or private implementation internals.
-
-The documents describe product concepts and safe architectural boundaries. They do not make claims about customers, certifications, compliance, revenue, adoption, or production usage.
-
-## Links
-
-- **Website:** [sentaryn.com](https://sentaryn.com)
-- **GitHub App:** [Install SENTARYN](https://github.com/apps/sentaryn/installations/new)
-- **Founder:** [DonUserOn on GitHub](https://github.com/DonUserOn)
-- **LinkedIn:** [Ossama Hanan](https://www.linkedin.com/in/ossamahanan/)
-
----
+## Explore SENTARYN
 
 **Let AI build. Keep control.**
+
+[Visit SENTARYN](https://sentaryn.com) · [Request early access](https://sentaryn.com/early-access)

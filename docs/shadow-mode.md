@@ -1,50 +1,53 @@
 # Shadow Mode
 
-Shadow Mode lets teams evaluate SENTARYN against software changes without making its decisions blocking. It is an observation and calibration phase for introducing authority controls safely.
+Shadow Mode is the observation-first concept for evaluating authority policies without making the results blocking. It makes policy effects, evidence gaps, and false positives inspectable before teams rely on enforcement.
 
 ## Non-blocking evaluation
 
-In Shadow Mode, the same authority flow can examine the request, authorized scope, actual change, evidence, and applicable policy. The result is reported for inspection, while the existing merge and delivery process remains in control.
+The Shadow Mode model compares requested, authorized, actual, evidence, and decision under applicable policy and approval conditions. Results describe the authority determination while the existing merge and delivery process remains in control.
 
-Shadow Mode does not silently convert an uncertain result into approval. Missing or insufficient evidence remains visible as **NOT VERIFIED**.
+Missing or insufficient evidence remains visible as **NOT VERIFIED**; uncertainty is not silently converted into approval.
 
 ## Shadow outcomes
 
-- **WOULD ALLOW** — the evaluated change is within authority and meets the observed policy and evidence conditions.
-- **WOULD REQUIRE APPROVAL** — enforcement would require a designated human approval.
-- **WOULD BLOCK** — enforcement would stop the change because an authority or policy boundary was violated.
-- **NOT VERIFIED** — available evidence cannot support a reliable decision.
+| Outcome | Meaning |
+| --- | --- |
+| **WOULD ALLOW** | The change is within authority and satisfies required evidence, policy, and approval conditions |
+| **WOULD REQUIRE APPROVAL** | A designated human approval is required |
+| **WOULD BLOCK** | An authority or policy boundary was violated |
+| **NOT VERIFIED** | Available evidence cannot support a reliable determination |
 
-These outcomes describe what the authority decision would be under enforcement; they do not themselves gate the change.
+These are observation outcomes. They do not themselves gate the change or assert that authorized code is correct.
 
 ## Observe before enforcement
 
-Teams can begin with representative repositories or workflows and observe how authority decisions behave across real changes. This makes policy effects visible before those policies become merge or delivery gates.
+Representative tasks and changes provide a basis for assessing authority policies. Comparing outcomes across those changes can reveal:
 
-The observation period can reveal where requests are underspecified, authority boundaries are too broad or too narrow, evidence is unavailable, or approval ownership needs clarification.
+- underspecified requests;
+- boundaries that are too broad or too narrow;
+- missing or outdated evidence;
+- unclear approval ownership;
+- false positives and missed scope expansion.
+
+The goal is to understand whether the policy captures the team’s intended authority boundary.
 
 ## Compare with human review
 
-Shadow decisions can be compared with existing human review outcomes. Differences are useful signals:
+Differences between shadow outcomes and human review are useful signals. A reviewer may identify authorization context that was not captured. An authority comparison may expose scope expansion that a review focused on behavior did not flag.
 
-- a reviewer may identify contextual authority that was not captured;
-- SENTARYN may expose scope expansion that a correctness-focused review did not flag;
-- both may agree that a change should proceed, require escalation, or stop;
-- missing evidence may show that no defensible automated decision is possible yet.
+Neither side is automatically correct. Investigating disagreements helps distinguish policy problems, evidence gaps, and review omissions.
 
-The purpose is not to treat either side as automatically correct. It is to make decision boundaries explicit and inspectable.
+## Calibrate policies before relying on enforcement
 
-## Tune policies before gating
+Observation supports refinement of authorized scopes, evidence requirements, exception paths, and approval rules. A useful sequence is:
 
-Before enabling enforcement, teams can refine authorized scopes, evidence requirements, exception paths, and approval rules based on observed results. A deliberate transition from shadow evaluation to gating reduces surprises and makes ownership clear.
+1. Observe representative changes without gating them.
+2. Compare authority outcomes with human judgment.
+3. Investigate disagreements, false positives, and evidence gaps.
+4. Refine boundaries and approval requirements.
+5. Assess whether the policy and evidence are reliable enough to support enforcement.
 
-Shadow Mode provides a practical sequence:
-
-1. Observe real changes without blocking them.
-2. Compare authority decisions with human judgment.
-3. Investigate disagreements and evidence gaps.
-4. Tune policies and approval requirements.
-5. Introduce gating only when the decision boundary is understood.
+This sequence describes how to evaluate authority controls; it does not claim a production enforcement deployment.
 
 ## Related documents
 
